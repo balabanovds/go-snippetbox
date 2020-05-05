@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
+	"github.com/balabanovds/go-snippetbox/pkg/models/mysql"
 	"log"
 	"net/http"
 	"os"
@@ -12,15 +14,20 @@ import (
 )
 
 type application struct {
-	infoLog *log.Logger
-	errLog  *log.Logger
+	infoLog  *log.Logger
+	errLog   *log.Logger
+	snippets *mysql.SnippetModel
 }
 
 func main() {
 	host := flag.String("host", "localhost", "Host name to start server on")
 	port := flag.Int("port", 4000, "Port to start server on")
-	dsn := flag.String("dsn", "snippet:feropl09@tcp(balabanov.sknt.ru:43306)/snippetbox?parseTime=true",
-		"MySQL data source name")
+	dbUser := flag.String("db_user", "", "MySQL user")
+	dbPassw := flag.String("db_password", "", "MySQL password")
+	dbHost := flag.String("db_host", "localhost", "MySQL host")
+	dbPort := flag.Int("db_port", 3306, "MySQL port")
+	dbName := flag.String("db_name", "snippetbox", "MySQL app DB name")
+
 	flag.Parse()
 
 	addr := *host + ":" + strconv.Itoa(*port)
@@ -29,16 +36,26 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	db, err := openDB(*dsn)
+	if *dbUser == "" || *dbPassw == "" {
+		errLog.Print("db user and password should be defined")
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true",
+		*dbUser, *dbPassw, *dbHost, *dbPort, *dbName)
+
+	infoLog.Println(dsn)
+	db, err := openDB(dsn)
 	if err != nil {
 		errLog.Fatal(err)
 	}
-
 	defer db.Close()
 
 	app := &application{
-		infoLog: infoLog,
-		errLog:  errLog,
+		infoLog:  infoLog,
+		errLog:   errLog,
+		snippets: mysql.NewSnippetModel(db),
 	}
 
 	srv := &http.Server{

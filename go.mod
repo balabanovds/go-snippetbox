@@ -1,4 +1,4 @@
-module github.com/balabanovds/snippetbox
+module github.com/balabanovds/go-snippetbox
 
 go 1.14
 
