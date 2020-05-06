@@ -2,10 +2,10 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"github.com/balabanovds/go-snippetbox/pkg/models"
 	"net/http"
 	"strconv"
+
+	"github.com/balabanovds/go-snippetbox/pkg/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -20,26 +20,17 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, s := range snippets {
-		fmt.Fprintf(w, "%v\n\n", s)
+	data := &templateData{
+		Snippets: snippets,
 	}
 
-	//files := []string{
-	//	"./ui/templates/home.page.html",
-	//	"./ui/templates/base.layout.html",
-	//	"./ui/templates/footer.partial.html",
-	//}
-	//
-	//ts, err := template.ParseFiles(files...)
-	//if err != nil {
-	//	app.serverError(w, err)
-	//	return
-	//}
-	//
-	//err = ts.Execute(w, nil)
-	//if err != nil {
-	//	app.serverError(w, err)
-	//}
+	templates := []string{
+		"home.page.html",
+		"base.layout.html",
+		"footer.partial.html",
+	}
+	app.generateHTML(w, data, templates...)
+
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +49,16 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	_, _ = fmt.Fprintf(w, "%v", s)
+
+	data := &templateData{Snippet: s}
+
+	templates := []string{
+		"show.page.html",
+		"base.layout.html",
+		"footer.partial.html",
+	}
+
+	app.generateHTML(w, data, templates...)
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {

@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
+	"path/filepath"
 	"runtime/debug"
 )
 
@@ -19,4 +21,23 @@ func (app *application) clientError(w http.ResponseWriter, statusCode int) {
 
 func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
+}
+
+func (app *application) generateHTML(w http.ResponseWriter, data *templateData, filenames ...string) {
+	var files []string
+
+	for _, name := range filenames {
+		files = append(files, filepath.Join("./ui/templates", name))
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	err = ts.Execute(w, data)
+	if err != nil {
+		app.serverError(w, err)
+	}
 }
