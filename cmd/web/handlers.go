@@ -24,12 +24,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		Snippets: snippets,
 	}
 
-	templates := []string{
-		"home.page.html",
-		"base.layout.html",
-		"footer.partial.html",
-	}
-	app.generateHTML(w, data, templates...)
+	app.render(w, r, "home.page.html", data)
 
 }
 
@@ -52,13 +47,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 
 	data := &templateData{Snippet: s}
 
-	templates := []string{
-		"show.page.html",
-		"base.layout.html",
-		"footer.partial.html",
-	}
-
-	app.generateHTML(w, data, templates...)
+	app.render(w, r, "show.page.html", data)
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {

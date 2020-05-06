@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
-	"path/filepath"
 	"runtime/debug"
 )
 
@@ -23,20 +21,14 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
-func (app *application) generateHTML(w http.ResponseWriter, data *templateData, filenames ...string) {
-	var files []string
-
-	for _, name := range filenames {
-		files = append(files, filepath.Join("./ui/templates", name))
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
+func (app *application) render(w http.ResponseWriter, r *http.Request, name string, data *templateData) {
+	ts, ok := app.templateCache[name]
+	if !ok {
+		app.serverError(w, fmt.Errorf("template %s does not exist", name))
 		return
 	}
 
-	err = ts.Execute(w, data)
+	err := ts.Execute(w, data)
 	if err != nil {
 		app.serverError(w, err)
 	}
