@@ -48,7 +48,6 @@ func main() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true",
 		*dbUser, *dbPassw, *dbHost, *dbPort, *dbName)
 
-	infoLog.Println(dsn)
 	db, err := openDB(dsn)
 	if err != nil {
 		errLog.Fatal(err)

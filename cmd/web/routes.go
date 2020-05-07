@@ -13,28 +13,22 @@ func (app *application) routes() http.Handler {
 
 	r := chi.NewRouter()
 
-	// r.Use(app.recoverPanic, app.logRequest, secureHeaders)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.Logger)
+	r.Use(app.recoverPanic)
+	r.Use(app.logRequest)
 	r.Use(secureHeaders)
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Get("/", app.home)
 	r.Route("/snippet", func(r chi.Router) {
 		r.Get("/{id}", app.showSnippet)
-		r.Get("/create", app.createSnippet)
-		r.Post("/create", app.createSnippetForm)
+		r.Get("/create", app.createSnippetForm)
+		r.Post("/create", app.createSnippet)
 	})
 
 	filesDir := http.Dir("./ui/static")
 	fileServer(r, "/static", filesDir)
-	// fileServer := http.FileServer(http.Dir("./ui/static"))
-	// r.Get("/static/", func(w http.ResponseWriter, r *http.Request) {
-	// 	fs := http.StripPrefix("/static", fileServer)
-	// 	fs.ServeHTTP(w, r)
-	// })
 
 	return r
 }
