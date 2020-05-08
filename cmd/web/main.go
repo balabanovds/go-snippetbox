@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -74,10 +75,20 @@ func main() {
 		templateCache: templateCache,
 	}
 
+	tlsConfig := &tls.Config{
+
+		PreferServerCipherSuites: true,
+		CurvePreferences:         []tls.CurveID{tls.CurveP256, tls.X25519},
+	}
+
 	srv := &http.Server{
-		Addr:     addr,
-		ErrorLog: errLog,
-		Handler:  app.routes(),
+		Addr:         addr,
+		ErrorLog:     errLog,
+		Handler:      app.routes(),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	infoLog.Printf("serving on https://%s\n", addr)
