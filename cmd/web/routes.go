@@ -15,16 +15,20 @@ func (app *application) routes() http.Handler {
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
 	r.Use(app.recoverPanic)
-	r.Use(app.logRequest)
+	//r.Use(app.logRequest)
 	r.Use(secureHeaders)
+	r.Use(app.session.Enable)
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Get("/", app.home)
-	r.Route("/snippet", func(r chi.Router) {
-		r.Get("/{id}", app.showSnippet)
-		r.Get("/create", app.createSnippetForm)
-		r.Post("/create", app.createSnippet)
+	r.Group(func(r chi.Router) {
+		r.Route("/snippet", func(r chi.Router) {
+			r.Get("/{id}", app.showSnippet)
+			r.Get("/create", app.createSnippetForm)
+			r.Post("/create", app.createSnippet)
+		})
 	})
 
 	filesDir := http.Dir("./ui/static")

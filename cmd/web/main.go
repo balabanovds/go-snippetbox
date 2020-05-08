@@ -9,15 +9,18 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/balabanovds/go-snippetbox/pkg/models/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golangcollege/sessions"
 )
 
 type application struct {
 	infoLog       *log.Logger
 	errLog        *log.Logger
+	session       *sessions.Session
 	snippets      *mysql.SnippetModel
 	templateCache map[string]*template.Template
 }
@@ -30,6 +33,7 @@ func main() {
 	dbHost := flag.String("db_host", "localhost", "MySQL host")
 	dbPort := flag.Int("db_port", 3306, "MySQL port")
 	dbName := flag.String("db_name", "snippetbox", "MySQL app DB name")
+	secret := flag.String("secret", "LtcznmGmzys[J,tpmzy", "Secret key")
 
 	flag.Parse()
 
@@ -59,9 +63,13 @@ func main() {
 		errLog.Fatal(err)
 	}
 
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
+
 	app := &application{
 		infoLog:       infoLog,
 		errLog:        errLog,
+		session:       session,
 		snippets:      mysql.NewSnippetModel(db),
 		templateCache: templateCache,
 	}
@@ -72,8 +80,8 @@ func main() {
 		Handler:  app.routes(),
 	}
 
-	infoLog.Printf("serving on http://%s\n", addr)
-	errLog.Fatalln(srv.ListenAndServe())
+	infoLog.Printf("serving on https://%s\n", addr)
+	errLog.Fatalln(srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem"))
 }
 
 func openDB(dsn string) (*sql.DB, error) {

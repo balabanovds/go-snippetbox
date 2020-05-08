@@ -49,6 +49,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 
 func (app *application) addDefaultData(td *templateData, r *http.Request) {
 	td.CurrentYear = time.Now().Year()
+	td.Flash = app.session.PopString(r, "flash")
 }
 
 func humanDate(t time.Time) string {
