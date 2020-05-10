@@ -3,9 +3,12 @@ package forms
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 )
+
+var EmailReg = regexp.MustCompile("^[\\d\\w.-]+@[\\d\\w.-]+\\.\\w{2,}$")
 
 type Form struct {
 	url.Values
@@ -36,6 +39,28 @@ func (f *Form) MaxLength(field string, l int) {
 
 	if utf8.RuneCountInString(value) > l {
 		f.Errors.Add(field, fmt.Sprintf("Field can not be longer than %d characters", l))
+	}
+}
+
+func (f *Form) MinLength(field string, l int) {
+	value := f.Get(field)
+	if value == "" {
+		return
+	}
+
+	if utf8.RuneCountInString(value) < l {
+		f.Errors.Add(field, fmt.Sprintf("Field can not be shorter than %d characters", l))
+	}
+}
+
+func (f *Form) MatchesPattern(field string, pattern *regexp.Regexp) {
+	value := f.Get(field)
+	if value == "" {
+		return
+	}
+
+	if !pattern.MatchString(value) {
+		f.Errors.Add(field, "Field is invalid")
 	}
 }
 

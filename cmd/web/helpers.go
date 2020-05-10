@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/justinas/nosurf"
 	"net/http"
 	"runtime/debug"
 	"time"
@@ -48,8 +49,19 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 }
 
 func (app *application) addDefaultData(td *templateData, r *http.Request) {
+
+	td.CSRFToken = nosurf.Token(r)
 	td.CurrentYear = time.Now().Year()
-	td.Flash = app.session.PopString(r, "flash")
+	td.Flash = app.session.PopString(r, sessionKeyFlash)
+	td.Authenticated = app.isAuthenticated(r)
+}
+
+func (app *application) isAuthenticated(r *http.Request) bool {
+	isAuth, ok := r.Context().Value(ctxKeyIsAuthenticated).(bool)
+	if !ok {
+		return false
+	}
+	return isAuth
 }
 
 func humanDate(t time.Time) string {

@@ -18,11 +18,16 @@ import (
 	"github.com/golangcollege/sessions"
 )
 
+type ctxKey string
+
+const ctxKeyIsAuthenticated = ctxKey("isAuthenticated")
+
 type application struct {
 	infoLog       *log.Logger
 	errLog        *log.Logger
 	session       *sessions.Session
 	snippets      *mysql.SnippetModel
+	users         *mysql.UserModel
 	templateCache map[string]*template.Template
 }
 
@@ -72,6 +77,7 @@ func main() {
 		errLog:        errLog,
 		session:       session,
 		snippets:      mysql.NewSnippetModel(db),
+		users:         mysql.NewUserModel(db),
 		templateCache: templateCache,
 	}
 

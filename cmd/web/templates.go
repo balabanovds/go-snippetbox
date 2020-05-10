@@ -9,11 +9,14 @@ import (
 )
 
 type templateData struct {
-	CurrentYear int
-	Flash       string
-	Form        *forms.Form
-	Snippet     *models.Snippet
-	Snippets    []*models.Snippet
+	CSRFToken     string
+	CurrentYear   int
+	Authenticated bool
+	Name          string
+	Flash         string
+	Form          *forms.Form
+	Snippet       *models.Snippet
+	Snippets      []*models.Snippet
 }
 
 var functions = template.FuncMap{
@@ -27,7 +30,7 @@ func newTemplateData() *templateData {
 func newTemplateCache(dir string) (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob(filepath.Join(dir, "*.page.html"))
+	pages, err := filepath.Glob(filepath.Join(dir, "*.page.tmpl"))
 	if err != nil {
 		return nil, err
 	}
@@ -40,12 +43,12 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 			return nil, err
 		}
 
-		ts, err = ts.ParseGlob(filepath.Join(dir, "*.layout.html"))
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*.layout.tmpl"))
 		if err != nil {
 			return nil, err
 		}
 
-		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.html"))
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.tmpl"))
 		if err != nil {
 			return nil, err
 		}
