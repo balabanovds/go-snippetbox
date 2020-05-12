@@ -3,12 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/balabanovds/go-snippetbox/pkg/forms"
 	"github.com/balabanovds/go-snippetbox/pkg/models"
 	"github.com/go-chi/chi"
-	"net/http"
-	"strconv"
 )
+
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
+}
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 

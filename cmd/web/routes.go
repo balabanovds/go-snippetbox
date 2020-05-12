@@ -25,6 +25,7 @@ func (app *application) routes() http.Handler {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Get("/", app.home)
+	r.Get("/ping", ping)
 	r.Route("/snippet", func(r chi.Router) {
 		r.Get("/{id}", app.showSnippet)
 		r.Group(func(r chi.Router) {

@@ -23,7 +23,7 @@ func TestHumanTime(t *testing.T) {
 		},
 		{
 			name: "MSK",
-			tm:   time.Date(1982, 07, 16, 0, 0, 0, 0, time.FixedZone("MSK", 3*60*60)),
+			tm:   time.Date(1982, 07, 16, 6, 0, 0, 0, time.FixedZone("MSK", 3*60*60)),
 			want: "16 Jul 1982 at 03:00",
 		},
 	}
